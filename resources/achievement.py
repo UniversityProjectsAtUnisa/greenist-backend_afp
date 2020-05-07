@@ -1,6 +1,9 @@
 from flask_restful import Resource, reqparse
 from models.achievement import AchievementModel
 from sqlalchemy.exc import IntegrityError
+from datetime import datetime
+
+from config import DEBUG
 
 
 class Achievement(Resource):
@@ -17,7 +20,7 @@ class Achievement(Resource):
 
     @classmethod
     def get(cls, name):
-        achievement = AchievementModel.find_by_name(name)
+        achievement = AchievementModel.find_existing_by_name(name)
         if not achievement:
             return {"message": "Achievement not found"}, 404
 
@@ -25,13 +28,13 @@ class Achievement(Resource):
 
     @classmethod
     def post(cls, name):
-        achievement = AchievementModel.find_by_name(name)
+        achievement = AchievementModel.find_existing_by_name(name)
         if achievement:
             return {"message": "An Achievement with name '{}' already exists".format(name)}, 400
-        
+
         data = cls.parser.parse_args()
-        
         achievement = AchievementModel(name, **data)
+
         try:
             achievement.save_to_db()
         except IntegrityError as e:
@@ -44,29 +47,26 @@ class Achievement(Resource):
     @classmethod
     def put(cls, name):
         data = cls.parser.parse_args()
-        achievement = AchievementModel.find_by_name(name)
+        achievement = AchievementModel.find_existing_by_name(name)
 
         if not achievement:
-            achievement = AchievementModel(**data)
+            print(data)
+            achievement = AchievementModel(name, **data)
         else:
-            for k in data:
-                if k == "category": 
-                    setattr(achievement, "category_name", data[k])
-                else:
-                    setattr(achievement, k, data[k])
+            achievement.update(data)
 
         try:
             achievement.save_to_db()
         except IntegrityError as e:
             return {"database_exception": str(e)}, 400
-        except:
+        except Exception as e:
             return {"message": "Internal error occurred during the update."}, 500
 
         return achievement.json(), 201
 
     @classmethod
     def delete(cls, name):
-        achievement = AchievementModel.find_by_name(name)
+        achievement = AchievementModel.find_existing_by_name(name)
 
         if achievement:
             try:
@@ -80,6 +80,26 @@ class Achievement(Resource):
 
 
 class AchievementList(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument("last_fetch",
+                        type=float,
+                        required=False,
+                        help="This field must be a date in unix timestamp in float format.",
+                        default=0.0
+                        )
+
     @classmethod
-    def get(cls):
-        return {"achievements": [achievement.json() for achievement in AchievementModel.find_all()]}, 200
+    def get(cls, last_fetch=None):
+        last_fetch = last_fetch if last_fetch is not None else cls.parser.parse_args()[
+            "last_fetch"]
+
+        if DEBUG:
+            return {"new": [achievement.json() for achievement in AchievementModel.find_new(last_fetch)],
+                    "deleted": [achievement.json() for achievement in AchievementModel.find_deleted(last_fetch)],
+                    "updated": [achievement.json() for achievement in AchievementModel.find_updated(last_fetch)],
+                    "all": [achievement.json() for achievement in AchievementModel.find_all()]
+                    }
+        return {"new": [achievement.json() for achievement in AchievementModel.find_new(last_fetch)],
+                "deleted": [achievement.json() for achievement in AchievementModel.find_deleted(last_fetch)],
+                "updated": [achievement.json() for achievement in AchievementModel.find_updated(last_fetch)]
+                }

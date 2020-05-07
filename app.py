@@ -4,6 +4,7 @@ from resources.image import Image, ImageList
 from resources.category import Category, CategoryList
 from resources.task import Task, TaskCreator, TaskList
 from resources.achievement import Achievement, AchievementList
+from resources.update import Update
 
 
 def create_app():
@@ -26,6 +27,7 @@ def create_tables():
 def home():
     return "Hello World"
 
+
 api.add_resource(ImageList, "/images")
 api.add_resource(Image, "/image/<string:name>")
 
@@ -38,6 +40,8 @@ api.add_resource(Task, "/task/<int:id>")
 
 api.add_resource(AchievementList, "/achievements")
 api.add_resource(Achievement, "/achievement/<string:name>")
+
+api.add_resource(Update, "/update")
 
 if __name__ == "__main__":
     from db import db
