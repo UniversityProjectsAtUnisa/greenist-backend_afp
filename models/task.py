@@ -11,7 +11,7 @@ class TaskModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     desc = db.Column(db.String(128), nullable=False)
     ecoPoints = db.Column(db.Integer, nullable=False)
-    savings = db.Column(db.DECIMAL(2), nullable=False)
+    savings = db.Column(db.DECIMAL(precision=8, scale=2), nullable=False)
     weekly = db.Column(db.Boolean, nullable=False)
 
     created = db.Column(db.DateTime, server_default=db.func.now())
