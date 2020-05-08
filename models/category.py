@@ -96,7 +96,7 @@ class CategoryModel(db.Model):
         db.session.commit()
 
     def delete_from_db(self):
-        if self.achievements.count() or self.tasks.count():
+        if self.achievements.filter_by(deleted=None).count() or self.tasks.filter_by(deleted=None).count():
             raise IntegrityError("Cannot delete a category if it's associated with tasks or achievements", params=None, orig=None)
         self.deleted = datetime.now()
         db.session.add(self)
