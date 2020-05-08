@@ -2,6 +2,7 @@ from flask_restful import Resource, reqparse
 from resources.task import TaskList
 from resources.achievement import AchievementList
 from resources.category import CategoryList
+from datetime import datetime
 
 
 class Update(Resource):
@@ -23,4 +24,4 @@ class Update(Resource):
         achievements = AchievementList.get(data["last_fetch"])
         tasks = TaskList.get(data["last_fetch"])
 
-        return {"categories": categories, "achievements": achievements, "tasks": tasks}
+        return {"last_fetch": datetime.now().timestamp(), "categories": categories, "achievements": achievements, "tasks": tasks}
