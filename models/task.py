@@ -81,7 +81,7 @@ class TaskModel(db.Model):
     @classmethod
     def find_updated(cls, last_fetch):
         return cls.query.filter(
-            cls.created < datetime.fromtimestamp(last_fetch),
+            cls.created <= datetime.fromtimestamp(last_fetch),
             cls.deleted == None,
             cls.updated > datetime.fromtimestamp(last_fetch)
         )
