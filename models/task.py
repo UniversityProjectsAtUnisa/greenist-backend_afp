@@ -38,7 +38,7 @@ class TaskModel(db.Model):
                 "ecoPoints": self.ecoPoints,
                 "savings": format(float(self.savings), ".2f"),
                 "weekly": self.weekly,
-                "category":  CategoryModel.find_existing_by_id(self.category_id).name,
+                "category":  getattr(CategoryModel.find_existing_by_id(self.category_id), "name", None),
                 "created": self.created.timestamp(),
                 "updated": self.updated.timestamp(),
                 "deleted": None if self.deleted is None else self.deleted.timestamp()
@@ -49,7 +49,7 @@ class TaskModel(db.Model):
             "ecoPoints": self.ecoPoints,
             "savings": format(float(self.savings), ".2f"),
             "weekly": self.weekly,
-            "category":  CategoryModel.find_existing_by_id(self.category_id).name
+            "category":  getattr(CategoryModel.find_existing_by_id(self.category_id), "name", None)
         }
 
     @classmethod
