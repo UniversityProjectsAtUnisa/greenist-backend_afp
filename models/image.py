@@ -1,5 +1,6 @@
 from db import db
 from models.category import CategoryModel
+from sqlalchemy.exc import IntegrityError
 
 class ImageModel(db.Model):
     __tablename__ = "images"
@@ -30,5 +31,10 @@ class ImageModel(db.Model):
         db.session.commit()
         
     def delete_from_db(self):
+        for category in self.categories:
+            if not category.deleted:
+                raise IntegrityError("Cannot delete an image if it's associated with existing categories", params=None, orig=None)
+        for category in self.categories:
+            category.image = None
         db.session.delete(self)
         db.session.commit()

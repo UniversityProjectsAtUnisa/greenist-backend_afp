@@ -55,8 +55,8 @@ class Image(Resource):
                 image.delete_from_db()
             except IntegrityError as e:
                 return {"database_exception": str(e)}, 400
-            except:
-                return {"message": "Internal error occurred during deletion."}, 500
+            except Exception as e:
+                return {"message": "Internal error occurred during deletion."+str(e)}, 500
         return {"message": "Image deleted from database."}, 200
 
 
