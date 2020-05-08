@@ -76,7 +76,7 @@ class AchievementModel(db.Model):
     @classmethod
     def find_deleted(cls, last_fetch):
         return cls.query.filter(
-            cls.created < datetime.fromtimestamp(last_fetch),
+            cls.created <= datetime.fromtimestamp(last_fetch),
             cls.deleted > datetime.fromtimestamp(last_fetch)
         )
 

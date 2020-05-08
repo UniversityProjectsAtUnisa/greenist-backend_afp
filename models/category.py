@@ -71,7 +71,7 @@ class CategoryModel(db.Model):
     @classmethod
     def find_deleted(cls, last_fetch):
         return cls.query.filter(
-            cls.created < datetime.fromtimestamp(last_fetch),
+            cls.created <= datetime.fromtimestamp(last_fetch),
             cls.deleted > datetime.fromtimestamp(last_fetch)
         )
 
@@ -97,7 +97,7 @@ class CategoryModel(db.Model):
 
     def delete_from_db(self):
         if self.achievements.count() or self.tasks.count():
-            raise IntegrityError("Cannot delete a category if it's associated with tasks or achievements")
+            raise IntegrityError("Cannot delete a category if it's associated with tasks or achievements", params=None, orig=None)
         self.deleted = datetime.now()
         db.session.add(self)
         db.session.commit()

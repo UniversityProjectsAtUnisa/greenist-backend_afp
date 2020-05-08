@@ -71,7 +71,7 @@ class Category(Resource):
             except IntegrityError as e:
                 return {"database_exception": str(e)}, 400
             except Exception as e:
-                return {"message": "Internal error occurred during deletion." + str(e.__class__)}, 500
+                return {"message": "Internal error occurred during deletion."}, 500
         return {"message": "Category deleted from database."}, 200
 
 
