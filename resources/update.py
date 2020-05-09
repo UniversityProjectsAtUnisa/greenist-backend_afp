@@ -16,7 +16,7 @@ class Update(Resource):
                         )
 
     @classmethod
-    def get(cls):
+    def post(cls):
         data = cls.parser.parse_args()
         print(data["last_fetch"])
         

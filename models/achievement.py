@@ -41,8 +41,8 @@ class AchievementModel(db.Model):
                 "desc": self.desc,
                 "goal": self.goal,
                 "below": self.below,
-                "category": self.category.name,
-                "image": self.category.image_name,
+                "category": getattr(self.category, "name", None),
+                "image": getattr(self.category, "image_name", None),
                 "created": self.created.timestamp(),
                 "updated": self.updated.timestamp(),
                 "deleted": None if self.deleted is None else self.deleted.timestamp()
@@ -52,8 +52,8 @@ class AchievementModel(db.Model):
             "desc": self.desc,
             "goal": self.goal,
             "below": self.below,
-            "category": self.category.name,
-            "image": self.category.image_name
+            "category": getattr(self.category, "name", None),
+            "image": getattr(self.category, "image_name", None)
         }
 
     @classmethod
