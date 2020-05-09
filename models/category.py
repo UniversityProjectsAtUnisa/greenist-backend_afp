@@ -17,7 +17,7 @@ class CategoryModel(db.Model):
 
     image_name = db.Column(db.String(20),
                            db.ForeignKey("images.name"))
-    images = db.relationship("ImageModel")
+    image = db.relationship("ImageModel")
 
     tasks = db.relationship("TaskModel", lazy="dynamic")
     achievements = db.relationship("AchievementModel", lazy="dynamic")
