@@ -1,6 +1,6 @@
 from flask_restful import Resource
 from models.image import ImageModel
-from flask_jwt_extended import jwt_optional, get_jwt_identity
+from flask_jwt_extended import jwt_required, jwt_optional, get_jwt_identity
 from sqlalchemy.exc import IntegrityError
 
 
@@ -14,6 +14,7 @@ class Image(Resource):
         return image.json(), 200
 
     @classmethod
+    @jwt_required
     def post(cls, name):
         image = ImageModel.find_by_name(name)
         if image:
@@ -30,6 +31,7 @@ class Image(Resource):
         return image.json(), 201
 
     @classmethod
+    @jwt_required
     def put(cls, name):
         image = ImageModel.find_by_name(name)
         if not image:
@@ -47,6 +49,7 @@ class Image(Resource):
         return image.json(), 201
 
     @classmethod
+    @jwt_required
     def delete(cls, name):
         image = ImageModel.find_by_name(name)
 

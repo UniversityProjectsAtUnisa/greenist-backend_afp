@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
 from models.task import TaskModel
-from flask_jwt_extended import get_jwt_identity, jwt_optional
+from flask_jwt_extended import get_jwt_identity, jwt_optional, jwt_required
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 
@@ -31,6 +31,7 @@ class Task(Resource):
         return task.json(), 200
 
     @classmethod
+    @jwt_required
     def put(cls, id):
         data = parser.parse_args()
         task = TaskModel.find_existing_by_id(id)
@@ -50,6 +51,7 @@ class Task(Resource):
         return task.json(), 201
 
     @classmethod
+    @jwt_required
     def delete(cls, id):
         task = TaskModel.find_existing_by_id(id)
 
@@ -68,6 +70,7 @@ class Task(Resource):
 
 class TaskCreator(Resource):
     @classmethod
+    @jwt_required
     def post(cls):
         data = parser.parse_args()
 

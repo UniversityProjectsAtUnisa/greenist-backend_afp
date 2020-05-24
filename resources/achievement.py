@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
 from models.achievement import AchievementModel
-from flask_jwt_extended import jwt_optional, get_jwt_identity
+from flask_jwt_extended import jwt_required, jwt_optional, get_jwt_identity
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 
@@ -28,6 +28,7 @@ class Achievement(Resource):
         return achievement.json(), 200
 
     @classmethod
+    @jwt_required
     def post(cls, name):
         achievement = AchievementModel.find_existing_by_name(name)
         if achievement:
@@ -46,6 +47,7 @@ class Achievement(Resource):
         return achievement.json(), 201
 
     @classmethod
+    @jwt_required
     def put(cls, name):
         data = cls.parser.parse_args()
         achievement = AchievementModel.find_existing_by_name(name)
@@ -66,6 +68,7 @@ class Achievement(Resource):
         return achievement.json(), 201
 
     @classmethod
+    @jwt_required
     def delete(cls, name):
         achievement = AchievementModel.find_existing_by_name(name)
 

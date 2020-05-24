@@ -15,6 +15,7 @@ from blacklist import BLACKLIST
 
 class User(Resource):
     @classmethod
+    @jwt_required
     def get(cls, id):
         user = UserModel.find_by_id(id)
         if not user:
@@ -22,6 +23,7 @@ class User(Resource):
         return user.json(), 201
 
     @classmethod
+    @jwt_required
     def delete(cls, id):
         user = UserModel.find_by_id(id)
         if not user:

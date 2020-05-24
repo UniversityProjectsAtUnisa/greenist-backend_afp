@@ -25,6 +25,7 @@ class Category(Resource):
         return category.json(), 200
 
     @classmethod
+    @jwt_required
     def post(cls, name):
         category = CategoryModel.find_existing_by_name(name)
         if category:
@@ -43,6 +44,7 @@ class Category(Resource):
         return category.json(), 201
 
     @classmethod
+    @jwt_required
     def put(cls, name):
         category = CategoryModel.find_existing_by_name(name)
 
@@ -63,6 +65,7 @@ class Category(Resource):
         return category.json(), 201
 
     @classmethod
+    @jwt_required
     def delete(cls, name):
         category = CategoryModel.find_existing_by_name(name)
 
