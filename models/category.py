@@ -62,6 +62,10 @@ class CategoryModel(db.Model):
         return cls.query.all()
 
     @classmethod
+    def find_all_existing(cls):
+        return cls.query.filter_by(deleted=None).all()
+
+    @classmethod
     def find_new(cls, last_fetch):
         return cls.query.filter(
             cls.created > datetime.fromtimestamp(last_fetch),

@@ -1,6 +1,6 @@
 from flask_restful import Resource
 from models.image import ImageModel
-
+from flask_jwt_extended import jwt_optional, get_jwt_identity
 from sqlalchemy.exc import IntegrityError
 
 
@@ -50,13 +50,16 @@ class Image(Resource):
     def delete(cls, name):
         image = ImageModel.find_by_name(name)
 
-        if image:
-            try:
-                image.delete_from_db()
-            except IntegrityError as e:
-                return {"database_exception": str(e)}, 400
-            except Exception as e:
-                return {"message": "Internal error occurred during deletion."+str(e)}, 500
+        if not image:
+            return {"message": "Image not found"}, 404
+        
+        try:
+            image.delete_from_db()
+        except IntegrityError as e:
+            return {"database_exception": str(e)}, 400
+        except Exception as e:
+            return {"message": "Internal error occurred during deletion."+str(e)}, 500
+        
         return {"message": "Image deleted from database."}, 200
 
 

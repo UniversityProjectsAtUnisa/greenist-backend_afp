@@ -1,4 +1,5 @@
 from flask_restful import Resource, reqparse
+from flask_jwt_extended import jwt_required, jwt_optional, get_jwt_identity
 from models.category import CategoryModel
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
@@ -65,13 +66,16 @@ class Category(Resource):
     def delete(cls, name):
         category = CategoryModel.find_existing_by_name(name)
 
-        if category:
-            try:
-                category.delete_from_db()
-            except IntegrityError as e:
-                return {"database_exception": str(e)}, 400
-            except Exception as e:
-                return {"message": "Internal error occurred during deletion."}, 500
+        if not category:
+            return {"message": "Category not found"}, 404
+        
+        try:
+            category.delete_from_db()
+        except IntegrityError as e:
+            return {"database_exception": str(e)}, 400
+        except Exception as e:
+            return {"message": "Internal error occurred during deletion."}, 500
+        
         return {"message": "Category deleted from database."}, 200
 
 
@@ -85,7 +89,15 @@ class CategoryList(Resource):
                         )
 
     @classmethod
+    @jwt_optional
     def get(cls, last_fetch=None):
+
+        user = get_jwt_identity()
+        if user:
+            return {
+                "categories": [category.json() for category in CategoryModel.find_all_existing()]
+            }
+
         last_fetch = last_fetch if last_fetch is not None else cls.parser.parse_args()[
             "last_fetch"]
 
