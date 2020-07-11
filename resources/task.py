@@ -1,5 +1,6 @@
 from flask_restful import Resource, reqparse
 from models.task import TaskModel
+from flask_jwt_extended import get_jwt_identity, jwt_optional, jwt_required
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 
@@ -30,6 +31,7 @@ class Task(Resource):
         return task.json(), 200
 
     @classmethod
+    @jwt_required
     def put(cls, id):
         data = parser.parse_args()
         task = TaskModel.find_existing_by_id(id)
@@ -49,22 +51,26 @@ class Task(Resource):
         return task.json(), 201
 
     @classmethod
+    @jwt_required
     def delete(cls, id):
         task = TaskModel.find_existing_by_id(id)
 
-        if task:
-            try:
-                task.delete_from_db()
-            except IntegrityError as e:
-                return {"database_exception": str(e)}, 400
-            except:
-                return {"message": "Internal error occurred during the update."}, 500
+        if not task:
+            return {"message": "Task not found"}, 404
+        
+        try:
+            task.delete_from_db()
+        except IntegrityError as e:
+            return {"database_exception": str(e)}, 400
+        except:
+            return {"message": "Internal error occurred during the update."}, 500
 
         return {"message": "Task deleted from database"}, 200
 
 
 class TaskCreator(Resource):
     @classmethod
+    @jwt_required
     def post(cls):
         data = parser.parse_args()
 
@@ -89,8 +95,17 @@ class TaskList(Resource):
                         )
 
     @classmethod
+    @jwt_optional
     def get(cls, last_fetch=None):
+
+        user = get_jwt_identity()
+        if user: 
+            return {
+                "tasks": [task.json() for task in TaskModel.find_all_existing()]
+            }
+
         last_fetch = last_fetch if last_fetch is not None else cls.parser.parse_args()["last_fetch"]
+
 
         if DEBUG:
             return {"new": [task.json() for task in TaskModel.find_new(last_fetch)],

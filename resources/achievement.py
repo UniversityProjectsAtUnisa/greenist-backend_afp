@@ -1,5 +1,6 @@
 from flask_restful import Resource, reqparse
 from models.achievement import AchievementModel
+from flask_jwt_extended import jwt_required, jwt_optional, get_jwt_identity
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 
@@ -27,6 +28,7 @@ class Achievement(Resource):
         return achievement.json(), 200
 
     @classmethod
+    @jwt_required
     def post(cls, name):
         achievement = AchievementModel.find_existing_by_name(name)
         if achievement:
@@ -45,6 +47,7 @@ class Achievement(Resource):
         return achievement.json(), 201
 
     @classmethod
+    @jwt_required
     def put(cls, name):
         data = cls.parser.parse_args()
         achievement = AchievementModel.find_existing_by_name(name)
@@ -65,16 +68,19 @@ class Achievement(Resource):
         return achievement.json(), 201
 
     @classmethod
+    @jwt_required
     def delete(cls, name):
         achievement = AchievementModel.find_existing_by_name(name)
 
-        if achievement:
-            try:
-                achievement.delete_from_db()
-            except IntegrityError as e:
-                return {"database_exception": str(e)}, 400
-            except:
-                return {"message": "Internal error occurred during the update."}, 500
+        if not achievement:
+            return {"message": "Achievement not found"}, 404
+        
+        try:
+            achievement.delete_from_db()
+        except IntegrityError as e:
+            return {"database_exception": str(e)}, 400
+        except:
+            return {"message": "Internal error occurred during the update."}, 500
 
         return {"message": "Achievement deleted from database"}, 200
 
@@ -89,9 +95,16 @@ class AchievementList(Resource):
                         )
 
     @classmethod
+    @jwt_optional
     def get(cls, last_fetch=None):
-        last_fetch = last_fetch if last_fetch is not None else cls.parser.parse_args()[
-            "last_fetch"]
+
+        user = get_jwt_identity()
+        if user: 
+            return {
+                "achievement": [achievement.json() for achievement in AchievementModel.find_all_existing()]
+            }
+
+        last_fetch = last_fetch if last_fetch is not None else cls.parser.parse_args()["last_fetch"]
 
         if DEBUG:
             return {"new": [achievement.json() for achievement in AchievementModel.find_new(last_fetch)],

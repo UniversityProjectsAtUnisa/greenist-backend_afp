@@ -25,6 +25,10 @@ class ImageModel(db.Model):
     @classmethod
     def find_all(cls):
         return cls.query.all()
+
+    @classmethod
+    def find_all_existing(cls):
+        return cls.query.filter_by(deleted=None).all()
     
     def save_to_db(self):
         db.session.add(self)
